@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+    name: "dsmsk8s"
+    labels:
+        app: "dsmsk8s"
+    annotations:
+        kubernetes.io/ingress.class: addon-http-application-routing
+spec:
+    rules:
+        - host: dsmsk8s6e99-dsmsk8s.754755bb443d44b19cee.centralus.aksapp.io
+          http:
+            paths:
+            - path: /
+              backend:
+                serviceName: "dsmsk8s"
+                servicePort: 80

@@ -1,0 +1,16 @@
+apiVersion : apps/v1beta1
+kind: Deployment
+metadata:
+  name: "dsmsk8s"
+spec:
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: "dsmsk8s"
+    spec:
+      containers:
+        - name: "dsmsk8s"
+          image: "desattiacr.azurecr.io/dsmsk8s"
+          ports:
+          - containerPort: 80

@@ -37,12 +37,3 @@ stages:
             ingress.hostname:bluegreen.d673faa123fa4d679d6c.eastus.aksapp.io
 
       - upload: '$(bake.manifestsBundle)'
-          
-      - task: KubernetesManifest@0
-        inputs:
-          action: 'deploy'
-          kubernetesServiceConnection: 'desattir-bg'
-          namespace: 'default'
-          strategy: 'bluegreen'
-          manifests: '$(bake.manifestsBundle)'
-          imagePullSecrets: 'desattiracr'

@@ -1,0 +1,50 @@
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    
+    - uses: azure/docker-login@v1
+      with:
+        login-server: akskodeyacr.azurecr.io
+        username: ${{ secrets.acr_akskodeyacr_username }}
+        password: ${{ secrets.acr_akskodeyacr_password }}
+    
+    - name: Build and push image to ACR
+      id: build-image
+      run: |
+        docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t akskodeyacr.azurecr.io/aks1kodey:${{ github.sha }} --label dockerfile-path=Dockerfile
+        docker push akskodeyacr.azurecr.io/aks1kodey:${{ github.sha }}
+    
+    - uses: azure/k8s-set-context@v1
+      with:
+         kubeconfig: ${{ secrets.aks_aks1kodey_kubeConfig }}
+      id: login
+    
+    - name: Create namespace
+      run: |
+        namespacePresent=`kubectl get namespace | grep aks1kodeytest | wc -l`
+        if [ $namespacePresent -eq 0 ]
+        then
+            echo `kubectl create namespace aks1kodeytest`
+        fi
+
+    - uses: azure/k8s-create-secret@v1
+      with:
+        namespace: aks1kodeytest
+        container-registry-url: akskodeyacr.azurecr.io
+        container-registry-username: ${{ secrets.acr_akskodeyacr_username }}
+        container-registry-password: ${{ secrets.acr_akskodeyacr_password }}
+        secret-name: aks1kodeydockerauth
+       
+    - uses: azure/k8s-deploy@v1.2
+      with:
+        namespace: aks1kodeytest
+        manifests: |
+          manifests/deployment-2.yml
+          manifests/service-2.yml
+        images: |
+          akskodeyacr.azurecr.io/aks1kodey:${{ github.sha }}
+        imagepullsecrets: |
+          aks1kodeydockerauth

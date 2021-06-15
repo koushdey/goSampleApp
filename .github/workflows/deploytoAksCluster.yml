@@ -8,44 +8,44 @@ jobs:
     - uses: azure/docker-login@v1
       with:
         login-server: desattiacr.azurecr.io
-        username: ${{ secrets.acr_desattiacr_username }}
-        password: ${{ secrets.acr_desattiacr_password }}
+        username: ${{ secrets.acr_akskodeyacr_username }}
+        password: ${{ secrets.acr_akskodeyacr_password }}
     
     - name: Build and push image to ACR
       id: build-image
       run: |
-        docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t desattiacr.azurecr.io/dsmsk8s:${{ github.sha }}
-        docker push desattiacr.azurecr.io/dsmsk8s:${{ github.sha }}
+        docker build "$GITHUB_WORKSPACE/" -f  "Dockerfile" -t akskodeyacr.azurecr.io/aks1kodey:${{ github.sha }}
+        docker push akskodeyacr.azurecr.io/aks1kodey:${{ github.sha }}
     
     - uses: azure/k8s-set-context@v1
       with:
-         kubeconfig: ${{ secrets.aks_dsmsk8s_kubeConfig }}
+         kubeconfig: ${{ secrets.aks_aks1kodey_kubeConfig }}
       id: login
     
     - name: Create namespace
       run: |
-        namespacePresent=`kubectl get namespace | grep dsmsk8s6e99 | wc -l`
+        namespacePresent=`kubectl get namespace | grep aks1kodeytest | wc -l`
         if [ $namespacePresent -eq 0 ]
         then
-            echo `kubectl create namespace dsmsk8s6e99`
+            echo `kubectl create namespace aks1kodeytest`
         fi
 
     - uses: azure/k8s-create-secret@v1
       with:
-        namespace: dsmsk8s6e99
-        container-registry-url: desattiacr.azurecr.io
-        container-registry-username: ${{ secrets.acr_desattiacr_username }}
-        container-registry-password: ${{ secrets.acr_desattiacr_password }}
-        secret-name: dsmsk8sdockerauth
+        namespace: aks1kodeytest
+        container-registry-url: akskodeyacr.azurecr.io
+        container-registry-username: ${{ secrets.acr_akskodeyacr_username }}
+        container-registry-password: ${{ secrets.acr_akskodeyacr_password }}
+        secret-name: aks1kodeydockerauth
        
     - uses: azure/k8s-deploy@v1
       with:
-        namespace: dsmsk8s6e99
+        namespace: aks1kodeytest
         manifests: |
           manifests/deployment-1.yml
           manifests/service-1.yml
           manifests/ingress.yml
         images: |
-          desattiacr.azurecr.io/dsmsk8s:${{ github.sha }}
+          akskodeyacr.azurecr.io/aks1kodey:${{ github.sha }}
         imagepullsecrets: |
-          dsmsk8sdockerauth
+          aks1kodeydockerauth

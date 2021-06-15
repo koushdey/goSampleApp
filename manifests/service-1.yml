@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-    name: "dsmsk8s"
+    name: "aks1kodey"
     labels:
-        app: "dsmsk8s"
+        app: "aks1kodey"
 spec:
     type: ClusterIP
     ports:
@@ -12,4 +12,4 @@ spec:
       protocol: TCP
       name: http
     selector:
-        app: "dsmsk8s"
+        app: "aks1kodey"
